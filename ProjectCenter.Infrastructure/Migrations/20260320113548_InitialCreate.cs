@@ -326,6 +326,35 @@ namespace ProjectCenter.Infrastructure.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "Grades",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    ProjectId = table.Column<int>(type: "int", nullable: false),
+                    TeacherId = table.Column<int>(type: "int", nullable: false),
+                    Value = table.Column<int>(type: "int", nullable: false),
+                    Comment = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Grades", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Grades_Project_ProjectId",
+                        column: x => x.ProjectId,
+                        principalTable: "Project",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Grades_Teacher_TeacherId",
+                        column: x => x.TeacherId,
+                        principalTable: "Teacher",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_Comment_ProjectId",
                 table: "Comment",
@@ -354,6 +383,17 @@ namespace ProjectCenter.Infrastructure.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_ConsultationSchedule_TeacherId",
                 table: "ConsultationSchedule",
+                column: "TeacherId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Grades_ProjectId",
+                table: "Grades",
+                column: "ProjectId",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Grades_TeacherId",
+                table: "Grades",
                 column: "TeacherId");
 
             migrationBuilder.CreateIndex(
@@ -424,10 +464,10 @@ namespace ProjectCenter.Infrastructure.Migrations
                 name: "ConsultationSchedule");
 
             migrationBuilder.DropTable(
-                name: "Notification");
+                name: "Grades");
 
             migrationBuilder.DropTable(
-                name: "Project");
+                name: "Notification");
 
             migrationBuilder.DropTable(
                 name: "Cabinet");
@@ -437,6 +477,9 @@ namespace ProjectCenter.Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "DayOfWeekForConsultation");
+
+            migrationBuilder.DropTable(
+                name: "Project");
 
             migrationBuilder.DropTable(
                 name: "StatusProject");

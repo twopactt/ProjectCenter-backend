@@ -23,6 +23,6 @@ public class Project
     public virtual StatusProject Status { get; set; }
     public virtual TypeProject Type { get; set; }
     public virtual Subject Subject { get; set; }
-
+    public virtual Grade Grade { get; set; }
     public virtual ICollection<Comment> Comments { get; set; } = new List<Comment>();
 }

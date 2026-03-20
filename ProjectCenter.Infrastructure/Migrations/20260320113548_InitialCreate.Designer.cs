@@ -12,7 +12,7 @@ using ProjectCenter.Infrastructure.Persistence.Contexts;
 namespace ProjectCenter.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251202184922_InitialCreate")]
+    [Migration("20260320113548_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -147,6 +147,40 @@ namespace ProjectCenter.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("DayOfWeekForConsultation", (string)null);
+                });
+
+            modelBuilder.Entity("ProjectCenter.Core.Entities.Grade", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Comment")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("ProjectId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TeacherId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Value")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProjectId")
+                        .IsUnique();
+
+                    b.HasIndex("TeacherId");
+
+                    b.ToTable("Grades", (string)null);
                 });
 
             modelBuilder.Entity("ProjectCenter.Core.Entities.Group", b =>
@@ -468,6 +502,25 @@ namespace ProjectCenter.Infrastructure.Migrations
                     b.Navigation("Teacher");
                 });
 
+            modelBuilder.Entity("ProjectCenter.Core.Entities.Grade", b =>
+                {
+                    b.HasOne("ProjectCenter.Core.Entities.Project", "Project")
+                        .WithOne("Grade")
+                        .HasForeignKey("ProjectCenter.Core.Entities.Grade", "ProjectId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ProjectCenter.Core.Entities.Teacher", "Teacher")
+                        .WithMany("Grades")
+                        .HasForeignKey("TeacherId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Project");
+
+                    b.Navigation("Teacher");
+                });
+
             modelBuilder.Entity("ProjectCenter.Core.Entities.Notification", b =>
                 {
                     b.HasOne("ProjectCenter.Core.Entities.User", "Recipient")
@@ -591,6 +644,9 @@ namespace ProjectCenter.Infrastructure.Migrations
             modelBuilder.Entity("ProjectCenter.Core.Entities.Project", b =>
                 {
                     b.Navigation("Comments");
+
+                    b.Navigation("Grade")
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("ProjectCenter.Core.Entities.StatusProject", b =>
@@ -611,6 +667,8 @@ namespace ProjectCenter.Infrastructure.Migrations
             modelBuilder.Entity("ProjectCenter.Core.Entities.Teacher", b =>
                 {
                     b.Navigation("ConsultationSchedules");
+
+                    b.Navigation("Grades");
 
                     b.Navigation("Projects");
 

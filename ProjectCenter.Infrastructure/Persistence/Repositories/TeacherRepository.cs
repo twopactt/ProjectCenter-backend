@@ -26,6 +26,10 @@ namespace ProjectCenter.Infrastructure.Persistence.Repositories
                 .Where(s => s.TeacherId == teacherId)
                 .Include(s => s.User)
                 .Include(s => s.Group)
+                .Include(s => s.Projects) 
+                    .ThenInclude(p => p.Status)
+                .Include(s => s.Projects)
+                    .ThenInclude(p => p.Grade)
                 .ToListAsync();
         }
     }

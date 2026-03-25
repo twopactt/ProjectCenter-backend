@@ -11,5 +11,11 @@ namespace ProjectCenter.Application.DTOs
         public int Id { get; set; }
         public string FullName { get; set; }
         public string? GroupName { get; set; }
+
+        public string ProjectTitle { get; set; }
+        public string ProjectStatus { get; set; }
+
+        public int? Grade { get; set; }
+        public string? GradeComment { get; set; }
     }
 }

@@ -31,9 +31,10 @@ namespace ProjectCenter.Api.Controllers
 
             int userId = (int)HttpContext.Items["UserId"];
 
-            var students = await _teacherService.GetMyStudentsAsync(userId);
+            var data = await _teacherService.GetMyStudentsAsync(userId);
 
-            return Ok(students);
+            return Ok(data);
         }
     }
-}
+    }
+

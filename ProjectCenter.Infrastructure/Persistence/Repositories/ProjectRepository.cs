@@ -50,7 +50,7 @@ namespace ProjectCenter.Infrastructure.Persistence.Repositories
                         .ThenInclude(t => t.User)
                 .ToListAsync();
         }
-        // ProjectCenter.Infrastructure/Persistence/Repositories/ProjectRepository.cs
+      
         public async Task<List<Project>> GetProjectsByTeacherIdAsync(int teacherId)
         {
             return await _context.Projects
@@ -111,7 +111,7 @@ namespace ProjectCenter.Infrastructure.Persistence.Repositories
             _context.Projects.Remove(project);
             await _context.SaveChangesAsync();
         }
-        // ProjectCenter.Infrastructure/Persistence/Repositories/ProjectRepository.cs
+  
         public async Task<Project?> GetProjectByIdAndTeacherIdAsync(int projectId, int teacherId)
         {
             return await _context.Projects

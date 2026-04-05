@@ -26,50 +26,54 @@ namespace ProjectCenter.Application.Services
             _userRepository = userRepository;
         }
 
+   
         public async Task<GradeDto> SetGradeAsync(int teacherUserId, GradeRequestDto dto)
         {
-            // 1. Получаем преподавателя
+        
             var teacher = await _userRepository.GetByIdAsync(teacherUserId);
             if (teacher == null || teacher.Teacher == null)
                 throw new Exception("Вы не преподаватель");
 
-            // 2. Получаем проект
+      
             var project = await _projectRepository.GetProjectByIdAsync(dto.ProjectId);
             if (project == null)
                 throw new ProjectNotFoundException(dto.ProjectId);
 
-            // ❗ 3. Проверка: это его студент?
+         
             if (project.TeacherId != teacher.Teacher.Id)
                 throw new ProjectAccessDeniedException();
 
-            // 4. Проверка значения оценки
+      
             if (dto.Value < 1 || dto.Value > 5)
                 throw new ArgumentException("Оценка должна быть от 1 до 5");
 
-            // 5. Есть ли уже оценка?
-            var existing = await _gradeRepository.GetByProjectIdAsync(dto.ProjectId);
+          
+            var existingGrade = await _gradeRepository.GetByProjectIdAsync(dto.ProjectId);
 
-            if (existing != null)
+            if (existingGrade != null)
             {
-                existing.Value = dto.Value;
-                existing.Comment = dto.Comment;
-                await _gradeRepository.UpdateAsync(existing);
+         
+                existingGrade.Value = dto.Value;
+                existingGrade.Comment = dto.Comment;
+                existingGrade.CreatedAt = DateTime.UtcNow; 
+                await _gradeRepository.UpdateAsync(existingGrade);
 
                 return new GradeDto
                 {
-                    Value = existing.Value,
-                    Comment = existing.Comment,
-                    CreatedAt = existing.CreatedAt
+                    Value = existingGrade.Value,
+                    Comment = existingGrade.Comment,
+                    CreatedAt = existingGrade.CreatedAt
                 };
             }
 
-            // 6. Создаём новую
+        
             var grade = new Grade
             {
                 ProjectId = dto.ProjectId,
                 TeacherId = teacher.Teacher.Id,
                 Value = dto.Value,
-                Comment = dto.Comment
+                Comment = dto.Comment,
+                CreatedAt = DateTime.UtcNow
             };
 
             await _gradeRepository.AddAsync(grade);
@@ -81,5 +85,63 @@ namespace ProjectCenter.Application.Services
                 CreatedAt = grade.CreatedAt
             };
         }
+        public async Task<GradeDto> UpdateGradeAsync(int teacherUserId, int projectId, GradeRequestDto dto)
+        {
+      
+            var teacher = await _userRepository.GetByIdAsync(teacherUserId);
+            if (teacher == null || teacher.Teacher == null)
+                throw new Exception("Вы не преподаватель");
+
+
+            var project = await _projectRepository.GetProjectByIdAsync(projectId);
+            if (project == null)
+                throw new ProjectNotFoundException(projectId);
+
+            if (project.TeacherId != teacher.Teacher.Id)
+                throw new ProjectAccessDeniedException();
+
+       
+            if (dto.Value < 1 || dto.Value > 5)
+                throw new ArgumentException("Оценка должна быть от 1 до 5");
+
+            var existingGrade = await _gradeRepository.GetByProjectIdAsync(projectId);
+            if (existingGrade == null)
+                throw new Exception("Оценка ещё не выставлена. Сначала создайте оценку.");
+
+    
+            existingGrade.Value = dto.Value;
+            existingGrade.Comment = dto.Comment;
+            existingGrade.CreatedAt = DateTime.UtcNow;
+            await _gradeRepository.UpdateAsync(existingGrade);
+
+            return new GradeDto
+            {
+                Value = existingGrade.Value,
+                Comment = existingGrade.Comment,
+                CreatedAt = existingGrade.CreatedAt
+            };
+        }
+
+        public async Task<GradeDto> GetGradeByProjectIdAsync(int projectId)
+        {
+            var grade = await _gradeRepository.GetByProjectIdAsync(projectId);
+            if (grade == null)
+                return null;
+
+            return new GradeDto
+            {
+                Value = grade.Value,
+                Comment = grade.Comment,
+                CreatedAt = grade.CreatedAt
+            };
+        }
+
+        public async Task<bool> HasGradeAsync(int projectId)
+        {
+            var grade = await _gradeRepository.GetByProjectIdAsync(projectId);
+            return grade != null;
+        }
+
     }
-}
+    }
+

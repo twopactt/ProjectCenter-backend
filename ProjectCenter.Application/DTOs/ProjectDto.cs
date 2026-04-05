@@ -19,7 +19,7 @@ public class ProjectDto
 
     public List<CommentDto> Comments { get; set; } = new();
 
-    // 👇 ДОБАВЛЯЕМ
+
     public int? GradeValue { get; set; }
     public string? GradeComment { get; set; }
     public DateTime? GradeDate { get; set; }

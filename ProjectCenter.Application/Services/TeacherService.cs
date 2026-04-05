@@ -39,16 +39,15 @@ namespace ProjectCenter.Application.Services
             if (user.Teacher == null)
                 throw new AccessDeniedException("Только преподаватель может просматривать студентов.");
 
-            // 🔹 2. Получаем студентов
+    
             var students = await _repo.GetStudentsByTeacherIdAsync(user.Teacher.Id);
 
-            // 🔹 3. Фильтруем: только с проектами
+         
             var result = students
                 .Where(s => s.Projects != null && s.Projects.Any())
                 .Select(s =>
                 {
-                    var project = s.Projects.First(); // у тебя 1 активный проект
-
+                    var project = s.Projects.First();
                     return new StudentShortDto
                     {
                         Id = s.Id,
@@ -64,7 +63,7 @@ namespace ProjectCenter.Application.Services
                 })
                 .ToList();
 
-            // 🔹 4. Если вообще нет студентов с проектами
+
             if (!result.Any())
                 throw new ArgumentException("У ваших студентов пока нет проектов.");
 

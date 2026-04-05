@@ -24,18 +24,18 @@ namespace ProjectCenter.Infrastructure.Persistence.Configurations
                     .IsRequired();
 
                 builder.Property(g => g.Comment)
-                    .HasMaxLength(1000); // комментарий необязательный
+                    .HasMaxLength(1000);
 
                 builder.Property(g => g.CreatedAt)
                     .IsRequired();
 
-                // Связь с Project (1 к 1)
+       
                 builder.HasOne(g => g.Project)
                     .WithOne(p => p.Grade)
                     .HasForeignKey<Grade>(g => g.ProjectId)
                     .OnDelete(DeleteBehavior.Cascade);
 
-                // Связь с Teacher
+         
                 builder.HasOne(g => g.Teacher)
                     .WithMany(t => t.Grade)
                     .HasForeignKey(g => g.TeacherId)

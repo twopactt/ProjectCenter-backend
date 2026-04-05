@@ -1,4 +1,4 @@
-﻿// ProjectCenter.Core/Exceptions/NoProjectsForTeacherException.cs
+﻿
 namespace ProjectCenter.Core.Exceptions
 {
     public class NoProjectsForTeacherException : Exception

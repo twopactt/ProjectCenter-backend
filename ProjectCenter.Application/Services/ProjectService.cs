@@ -32,7 +32,7 @@ namespace ProjectCenter.Application.Services
                 return _mapper.Map<List<ProjectDto>>(allProjects);
             }
 
-            // Для учителя — проекты его студентов
+          
             if (role == "Teacher")
             {
                 var user = await _userRepository.GetFullUserByIdAsync(userId);
@@ -47,7 +47,7 @@ namespace ProjectCenter.Application.Services
                 return _mapper.Map<List<ProjectDto>>(teacherProjects);
             }
 
-            // Для студента — публичные проекты (или можно вообще убрать доступ?)
+           
             var publicProjects = await _projectRepository.GetPublicProjectsAsync();
             return _mapper.Map<List<ProjectDto>>(publicProjects);
         }
@@ -101,7 +101,7 @@ namespace ProjectCenter.Application.Services
             if (project == null)
                 throw new ProjectNotFoundException(projectId);
 
-            // Обновляем только те поля, которые переданы в DTO
+          
             if (!string.IsNullOrWhiteSpace(dto.Title))
                 project.Title = dto.Title;
 
@@ -131,7 +131,6 @@ namespace ProjectCenter.Application.Services
 
             await _projectRepository.UpdateProjectAsync(project);
 
-            // Возвращаем обновленный проект
             var updatedProject = await _projectRepository.GetProjectByIdAsync(projectId);
             return _mapper.Map<ProjectDto>(updatedProject);
         }
@@ -142,15 +141,15 @@ namespace ProjectCenter.Application.Services
             if (project == null)
                 throw new ProjectNotFoundException(projectId);
 
-            // Проверяем, что проект принадлежит студенту
+          
             var student = await _userRepository.GetStudentByUserIdAsync(studentUserId);
             if (student == null || project.StudentId != student.Id)
                 throw new ProjectAccessDeniedException();
 
-            // Обновляем файл проекта (архив)
+         
             if (dto.NewProjectFile != null)
             {
-                // Удаляем старый файл если есть
+  
                 if (!string.IsNullOrEmpty(project.FileProject))
                     _fileService.DeleteProjectFile(project.FileProject);
 
@@ -162,10 +161,10 @@ namespace ProjectCenter.Application.Services
                 project.FileProject = null;
             }
 
-            // Обновляем файл документации (текстовый)
+    
             if (dto.NewDocumentationFile != null)
             {
-                // Удаляем старый файл если есть
+  
                 if (!string.IsNullOrEmpty(project.FileDocumentation))
                     _fileService.DeleteDocumentationFile(project.FileDocumentation);
 
@@ -177,13 +176,13 @@ namespace ProjectCenter.Application.Services
                 project.FileDocumentation = null;
             }
 
-            // Обновляем видимость
+
             if (dto.IsPublic.HasValue)
                 project.IsPublic = dto.IsPublic.Value;
 
             await _projectRepository.UpdateProjectAsync(project);
 
-            // Возвращаем обновленный проект
+
             var updatedProject = await _projectRepository.GetProjectByIdAsync(projectId);
             return _mapper.Map<ProjectDto>(updatedProject);
         }
@@ -193,43 +192,41 @@ namespace ProjectCenter.Application.Services
             if (project == null)
                 throw new ArgumentException("Проект не найден");
 
-            // 1. Удаляем файл проекта
+        
             if (!string.IsNullOrEmpty(project.FileProject))
                 _fileService.DeleteProjectFile(project.FileProject);
 
-            // 2. Удаляем файл документации
+     
             if (!string.IsNullOrEmpty(project.FileDocumentation))
                 _fileService.DeleteDocumentationFile(project.FileDocumentation);
 
-            // 3. Удаляем комментарии
-            if (project.Comments != null && project.Comments.Any())
-                project.Comments.Clear(); // EF удалит каскадно
 
-            // 4. Удаляем сам проект
+            if (project.Comments != null && project.Comments.Any())
+                project.Comments.Clear(); 
+
+    
             await _projectRepository.DeleteProjectAsync(project);
         }
         public async Task<ProjectDto?> GetMyProjectAsync(int studentUserId)
         {
-            // 1. Получаем студента по UserId
+          
             var student = await _userRepository.GetStudentByUserIdAsync(studentUserId);
             if (student == null)
             {
-                // Если пользователь не является студентом, возвращаем null
-                // В контроллере это обработается как 404
+      
                 return null;
             }
 
-            // 2. Ищем активный проект студента
+       
             var activeProject = await _projectRepository.GetActiveProjectByStudentIdAsync(student.Id);
             if (activeProject == null)
             {
                 return null;
             }
 
-            // 3. Загружаем полные данные проекта (с включениями)
             var fullProject = await _projectRepository.GetProjectByIdAsync(activeProject.Id);
 
-            // 4. Маппим в DTO и возвращаем
+       
             return _mapper.Map<ProjectDto>(fullProject);
         }
         public async Task AddCommentAsync(int projectId, int userId, string text)
@@ -237,25 +234,24 @@ namespace ProjectCenter.Application.Services
             if (string.IsNullOrWhiteSpace(text))
                 throw new ArgumentException("Комментарий не может быть пустым.");
 
-            // 🔹 1. Получаем пользователя
+    
             var user = await _userRepository.GetFullUserByIdAsync(userId);
             if (user == null)
                 throw new UserNotFoundException(userId);
 
-            // 🔹 2. Проверка: преподаватель ли
+
             if (user.Teacher == null)
                 throw new AccessDeniedException("Только преподаватель может оставлять комментарии.");
 
-            // 🔹 3. Получаем проект
+    
             var project = await _projectRepository.GetProjectByIdAsync(projectId);
             if (project == null)
                 throw new ProjectNotFoundException(projectId);
 
-            // 🔹 4. Проверка: это его студент?
+    
             if (project.TeacherId != user.Teacher.Id)
                 throw new AccessDeniedException("Вы можете комментировать только проекты своих студентов.");
 
-            // 🔹 5. Создаём комментарий
             var comment = new Comment
             {
                 Text = text,
@@ -264,27 +260,27 @@ namespace ProjectCenter.Application.Services
                 ProjectId = project.Id
             };
 
-            // 🔹 6. Добавляем в проект
+   
             project.Comments.Add(comment);
 
-            // 🔹 7. Сохраняем
+
             await _projectRepository.UpdateProjectAsync(project);
         }
-        // ProjectCenter.Application/Services/ProjectService.cs
+       
         public async Task<ProjectDto> GetTeacherStudentProjectAsync(int projectId, int teacherUserId)
         {
-            // 1. Получаем преподавателя по UserId
+ 
             var teacher = await _userRepository.GetFullUserByIdAsync(teacherUserId);
             if (teacher?.Teacher == null)
                 throw new AccessDeniedException("Вы не являетесь преподавателем");
 
-            // 2. Ищем проект, который принадлежит студенту этого преподавателя
+          
             var project = await _projectRepository.GetProjectByIdAndTeacherIdAsync(projectId, teacher.Teacher.Id);
 
             if (project == null)
                 throw new NoCuratorProjectException(projectId);
 
-            // 3. Возвращаем DTO
+   
             return _mapper.Map<ProjectDto>(project);
         }
 

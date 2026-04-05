@@ -54,7 +54,7 @@ namespace ProjectCenter.Application.Services
                         Id = s.Id,
                         FullName = $"{s.User.Surname} {s.User.Name} {s.User.Patronymic}".Trim(),
                         GroupName = s.Group?.Name,
-
+                        ProjectId = project.Id,
                         ProjectTitle = project.Title,
                         ProjectStatus = project.Status.Name,
 

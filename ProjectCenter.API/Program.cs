@@ -3,19 +3,15 @@ using ProjectCenter.API.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Регистрация всех сервисов одной строкой
 builder.Services.AddAllServices(builder.Configuration);
 
-// Добавляем контроллеры
 builder.Services.AddControllers();
 
-// Добавляем Swagger
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerWithBearer();
 
 var app = builder.Build();
 
-// Middleware
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 if (app.Environment.IsDevelopment())
@@ -23,12 +19,11 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
+app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseCors();
 
-// Настройка статических файлов
+
 app.UseStaticFiles(new StaticFileOptions
 {
     OnPrepareResponse = ctx =>

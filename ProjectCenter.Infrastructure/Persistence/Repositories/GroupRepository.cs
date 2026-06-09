@@ -35,5 +35,10 @@ namespace ProjectCenter.Infrastructure.Persistence.Repositories
         {
             return await _context.Groups.ToListAsync();
         }
+        public async Task AddAsync(Group group)
+        {
+            _context.Groups.Add(group);
+            await _context.SaveChangesAsync();
+        }
     }
 }

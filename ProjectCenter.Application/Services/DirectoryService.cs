@@ -1,15 +1,18 @@
 ﻿using ProjectCenter.Application.DTOs.Directory;
 using ProjectCenter.Application.Interfaces;
+using ProjectCenter.Core.Entities;
 
 namespace ProjectCenter.Application.Services
 {
     public class DirectoryService : IDirectoryService
     {
         private readonly IDirectoryRepository _repo;
+        private readonly IGroupRepository _groupRepository;
 
-        public DirectoryService(IDirectoryRepository repo)
+        public DirectoryService(IDirectoryRepository repo, IGroupRepository groupRepository)
         {
             _repo = repo;
+            _groupRepository = groupRepository;
         }
 
         public async Task<List<StatusProjectDto>> GetStatusesAsync()
@@ -35,6 +38,24 @@ namespace ProjectCenter.Application.Services
                 Id = g.Id,
                 Name = g.Name,
             }).ToList();
+        }
+        public async Task<GroupDto> CreateGroupAsync(CreateGroupDto dto)
+        {
+            if (string.IsNullOrWhiteSpace(dto.Name))
+                throw new ArgumentException("Название группы не может быть пустым");
+
+            var group = new Group
+            {
+                Name = dto.Name.Trim()
+            };
+
+            await _groupRepository.AddAsync(group);
+
+            return new GroupDto
+            {
+                Id = group.Id,
+                Name = group.Name
+            };
         }
     }
 }

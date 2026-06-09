@@ -12,5 +12,6 @@ namespace ProjectCenter.Application.Interfaces
         Task<List<Group>> GetByIdsAsync(IEnumerable<int> ids);
         Task<Group?> GetByIdAsync(int id);
         Task<List<Group>> GetAllAsync();
+        Task AddAsync(Group group);
     }
 }

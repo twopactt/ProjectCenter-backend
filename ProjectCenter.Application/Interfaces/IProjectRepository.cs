@@ -15,8 +15,8 @@ namespace ProjectCenter.Application.Interfaces
         Task DeleteProjectAsync(Project project);
         Task<Project?> GetProjectByIdAndTeacherIdAsync(int projectId, int teacherId);
         Task<List<Project>> GetProjectsByStudentIdAsync(int studentId);
-        Task<List<Project>> GetAllProjectsWithSortingAsync(ProjectSortBy? sortBy);
-        Task<List<Project>> GetPublicProjectsWithSortingAsync(ProjectSortBy? sortBy);
+        Task<List<Project>> GetAllProjectsWithSearchAsync(string? searchTerm, ProjectSortBy? sortBy = null);
+        Task<List<Project>> GetPublicProjectsWithSearchAsync(string? searchTerm, ProjectSortBy? sortBy = null);
 
     }
 }

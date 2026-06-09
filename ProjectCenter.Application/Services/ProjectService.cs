@@ -29,26 +29,18 @@ namespace ProjectCenter.Application.Services
         }
 
 
-        public async Task<List<ProjectDto>> GetProjectsForUserAsync(int userId, ProjectSortBy? sortBy = null)
+        public async Task<List<ProjectDto>> GetProjectsForUserAsync(int userId, string? searchText = null, ProjectSortBy? sortBy = null)
         {
             var user = await _userRepository.GetFullUserByIdAsync(userId);
             var effectiveSortBy = sortBy ?? ProjectSortBy.CreatedDateDesc;
-            // Админ — все проекты
-            if (user.IsAdmin)
+
+            if (user.IsAdmin || user.Teacher != null)
             {
-                var allProjects = await _projectRepository.GetAllProjectsWithSortingAsync(effectiveSortBy);
-                return _mapper.Map<List<ProjectDto>>(allProjects);
+                var projects = await _projectRepository.GetAllProjectsWithSearchAsync(searchText, effectiveSortBy);
+                return _mapper.Map<List<ProjectDto>>(projects);
             }
 
-            // Учитель — все проекты (тоже)
-            if (user.Teacher != null)
-            {
-                var allProjects = await _projectRepository.GetAllProjectsWithSortingAsync(effectiveSortBy);
-                return _mapper.Map<List<ProjectDto>>(allProjects);
-            }
-
-            // Студент — только публичные
-            var publicProjects = await _projectRepository.GetPublicProjectsWithSortingAsync(effectiveSortBy);
+            var publicProjects = await _projectRepository.GetPublicProjectsWithSearchAsync(searchText, effectiveSortBy);
             return _mapper.Map<List<ProjectDto>>(publicProjects);
         }
         public async Task<ProjectDto> GetProjectByIdAsync(int id)

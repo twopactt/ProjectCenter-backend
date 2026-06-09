@@ -147,7 +147,7 @@ namespace ProjectCenter.Infrastructure.Persistence.Repositories
                 .Where(p => p.StudentId == studentId)
                 .ToListAsync();
         }
-        public async Task<List<Project>> GetAllProjectsWithSortingAsync(ProjectSortBy? sortBy)
+        public async Task<List<Project>> GetAllProjectsWithSearchAsync(string? searchText, ProjectSortBy? sortBy)
         {
             var query = _context.Projects
                 .Include(p => p.Student)
@@ -165,7 +165,16 @@ namespace ProjectCenter.Infrastructure.Persistence.Repositories
                     .ThenInclude(g => g.Teacher)
                         .ThenInclude(t => t.User)
                 .AsQueryable();
-
+            if (!string.IsNullOrWhiteSpace(searchText))
+            {
+                var search = searchText.Trim();
+                query = query.Where(p =>
+                    p.Title.Contains(search) ||
+                    (p.Student.User.Surname + " " + p.Student.User.Name + " " + p.Student.User.Patronymic).Contains(search) ||
+                    (p.Teacher.User.Surname + " " + p.Teacher.User.Name + " " + p.Teacher.User.Patronymic).Contains(search) ||
+                    p.Student.Group.Name.Contains(search)
+                );
+            }
             query = sortBy switch
             {
                 ProjectSortBy.CreatedDateAsc => query.OrderBy(p => p.CreatedDate),
@@ -178,7 +187,7 @@ namespace ProjectCenter.Infrastructure.Persistence.Repositories
             return await query.ToListAsync();
         }
 
-        public async Task<List<Project>> GetPublicProjectsWithSortingAsync(ProjectSortBy? sortBy)
+        public async Task<List<Project>> GetPublicProjectsWithSearchAsync(string? searchText, ProjectSortBy? sortBy)
         {
             var query = _context.Projects
                 .Where(p => p.IsPublic)
@@ -197,7 +206,16 @@ namespace ProjectCenter.Infrastructure.Persistence.Repositories
                     .ThenInclude(g => g.Teacher)
                         .ThenInclude(t => t.User)
                 .AsQueryable();
-
+            if (!string.IsNullOrWhiteSpace(searchText))
+            {
+                var search = searchText.Trim();
+                query = query.Where(p =>
+                    p.Title.Contains(search) ||
+                    (p.Student.User.Surname + " " + p.Student.User.Name + " " + p.Student.User.Patronymic).Contains(search) ||
+                    (p.Teacher.User.Surname + " " + p.Teacher.User.Name + " " + p.Teacher.User.Patronymic).Contains(search) ||
+                    p.Student.Group.Name.Contains(search)
+                );
+            }
             query = sortBy switch
             {
                 ProjectSortBy.CreatedDateAsc => query.OrderBy(p => p.CreatedDate),

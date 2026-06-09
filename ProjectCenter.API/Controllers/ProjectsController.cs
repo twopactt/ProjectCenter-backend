@@ -20,9 +20,9 @@ namespace ProjectCenter.Api.Controllers
             _projectService = projectService;
         }
 
-        
+
         [HttpGet]
-        public async Task<IActionResult> GetProjects([FromQuery] ProjectSortBy? sortBy)
+        public async Task<IActionResult> GetProjects([FromQuery] string? searchText, [FromQuery] ProjectSortBy? sortBy)
         {
             if (!HttpContext.Items.ContainsKey("UserId"))
                 return Unauthorized();
@@ -32,7 +32,7 @@ namespace ProjectCenter.Api.Controllers
 
             bool isAdmin = role == "Admin";
 
-            var projects = await _projectService.GetProjectsForUserAsync(userId, sortBy);
+            var projects = await _projectService.GetProjectsForUserAsync(userId, searchText, sortBy);
             return Ok(projects);
         }
         [HttpGet("{id}")]

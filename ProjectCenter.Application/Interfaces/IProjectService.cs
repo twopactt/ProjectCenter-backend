@@ -4,7 +4,7 @@ using ProjectCenter.Core.Enums;
 
 public interface IProjectService
 {
-    Task<List<ProjectDto>> GetProjectsForUserAsync(int userId, ProjectSortBy? sortBy = null);
+    Task<List<ProjectDto>> GetProjectsForUserAsync(int userId, string? searchText = null, ProjectSortBy? sortBy = null);
     Task<ProjectDto> GetProjectByIdAsync(int id);
 
     

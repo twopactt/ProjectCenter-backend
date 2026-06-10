@@ -63,7 +63,25 @@ namespace ProjectCenter.Api.Controllers
             var project = await _projectService.CreateProjectAsync(dto, userId);
             return CreatedAtAction(nameof(GetProjectById), new { id = project.Id }, project);
         }
-        
+        [HttpPost("admin")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> CreateProjectByAdmin([FromBody] AdminCreateProjectRequestDto dto)
+        {
+            if (dto.StudentUserId <= 0)
+                return BadRequest(new { error = "Необходимо указать StudentUserId" });
+
+            if (dto.CreatedDate == default)
+                return BadRequest(new { error = "Необходимо указать дату создания проекта" });
+
+            if (dto.DateDeadline == default)
+                return BadRequest(new { error = "Необходимо указать дату дедлайна" });
+
+            if (dto.DateDeadline <= dto.CreatedDate)
+                return BadRequest(new { error = "Дата дедлайна должна быть позже даты создания" });
+
+            var project = await _projectService.CreateProjectByAdminAsync(dto);
+            return CreatedAtAction(nameof(GetProjectById), new { id = project.Id }, project);
+        }
 
         [HttpPut("{id}")]
         [Authorize(Roles = "Admin")]

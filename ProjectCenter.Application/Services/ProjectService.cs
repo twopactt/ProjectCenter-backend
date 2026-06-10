@@ -147,6 +147,47 @@ namespace ProjectCenter.Application.Services
                 return new DateTime(currentYear + 1, 6, 25);
             }
         }
+        public async Task<ProjectDto> CreateProjectByAdminAsync(AdminCreateProjectRequestDto dto)
+        {
+            var student = await _userRepository.GetStudentByUserIdAsync(dto.StudentUserId)
+                ?? throw new StudentNotFoundException(dto.StudentUserId);
+
+            if (student.TeacherId == 0 || student.Teacher == null)
+                throw new InvalidOperationException($"У студента (UserId: {dto.StudentUserId}) не назначен куратор.");
+
+            var activeProject = await _projectRepository.GetActiveProjectByStudentIdAsync(student.Id);
+            if (activeProject != null)
+                throw new ActiveProjectExistsException(activeProject.Title);
+
+            var project = new Project
+            {
+                Title = dto.Title,
+                StudentId = student.Id,
+                TeacherId = student.TeacherId,
+                TypeId = dto.TypeId,
+                SubjectId = dto.SubjectId,
+                StatusId = 1,
+                IsPublic = dto.IsPublic,
+                FileProject = null,
+                FileDocumentation = null,
+                CreatedDate = dto.CreatedDate,
+                DateDeadline = dto.DateDeadline,   
+                Year = dto.DateDeadline.Year       
+            };
+
+            await _projectRepository.AddProjectAsync(project);
+
+            var studentUser = await _userRepository.GetByIdAsync(dto.StudentUserId);
+            var studentFullName = $"{studentUser.Surname} {studentUser.Name} {studentUser.Patronymic}".Trim();
+            var curatorUserId = student.Teacher.UserId;
+            var allUsers = await _userRepository.GetAllAsync();
+            var adminUserIds = allUsers.Where(u => u.IsAdmin).Select(u => u.Id).ToList();
+
+            await _notificationService.SendAddNewProjectNotificationAsync(curatorUserId, studentFullName, project.Title, adminUserIds);
+
+            var createdProject = await _projectRepository.GetProjectByIdAsync(project.Id);
+            return _mapper.Map<ProjectDto>(createdProject);
+        }
         public async Task<ProjectDto> UpdateProjectAsync(int projectId, UpdateProjectRequestDto dto)
         {
             var project = await _projectRepository.GetProjectByIdAsync(projectId);

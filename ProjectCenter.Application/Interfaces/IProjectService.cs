@@ -15,8 +15,9 @@ public interface IProjectService
     Task<List<GroupDto>> GetAvailableGroupsForYearAsync(int year);
     Task<ProjectDto> GetProjectByIdAsync(int id);
 
-    
+
     Task<ProjectDto> CreateProjectAsync(CreateProjectRequestDto dto, int studentUserId);
+    Task<ProjectDto> CreateProjectByAdminAsync(AdminCreateProjectRequestDto dto);
     Task<ProjectDto> UpdateProjectAsync(int projectId, UpdateProjectRequestDto dto);
     Task<ProjectDto> UpdateStudentProjectAsync(int projectId, UpdateStudentProjectRequestDto dto, int studentUserId);
     Task DeleteProjectAsync(int projectId);

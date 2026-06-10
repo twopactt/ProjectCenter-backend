@@ -239,7 +239,9 @@ namespace ProjectCenter.Application.Services
             if (project == null)
                 throw new ProjectNotFoundException(projectId);
 
-          
+            var inactiveStatuses = new[] { 5, 6, 7 };
+            if (inactiveStatuses.Contains(project.StatusId))
+                throw new InvalidOperationException("Нельзя изменять проект, который уже защищён, отклонён или архивирован.");
             var student = await _userRepository.GetStudentByUserIdAsync(studentUserId);
             if (student == null || project.StudentId != student.Id)
                 throw new ProjectAccessDeniedException();
@@ -247,7 +249,8 @@ namespace ProjectCenter.Application.Services
             bool fileUploaded = false;
             bool documentationUploaded = false;
             bool visibilityChanged = false;
-            bool? oldVisibility = null;
+            bool? oldVisibility = null; 
+            int oldStatusId = project.StatusId;
 
 
             if (dto.NewProjectFile != null)
@@ -290,8 +293,9 @@ namespace ProjectCenter.Application.Services
                     visibilityChanged = true;
                 
             }
-                
 
+            if ((fileUploaded || documentationUploaded) && project.StatusId == 1)
+                project.StatusId = 2;
             await _projectRepository.UpdateProjectAsync(project);
 
             if (fileUploaded && !documentationUploaded)
@@ -299,7 +303,6 @@ namespace ProjectCenter.Application.Services
                 var studentUser = await _userRepository.GetByIdAsync(studentUserId);
                 var studentFullName = $"{studentUser.Surname} {studentUser.Name} {studentUser.Patronymic}".Trim();
                 var curatorUserId = project.Teacher?.User?.Id ?? 0;
-
                 if (curatorUserId > 0)
                 {
                     await _notificationService.SendProjectFileUpdatedNotificationAsync(
@@ -314,7 +317,6 @@ namespace ProjectCenter.Application.Services
                 var studentUser = await _userRepository.GetByIdAsync(studentUserId);
                 var studentFullName = $"{studentUser.Surname} {studentUser.Name} {studentUser.Patronymic}".Trim();
                 var curatorUserId = project.Teacher?.User?.Id ?? 0;
-
                 if (curatorUserId > 0)
                 {
                     await _notificationService.SendProjectDocumentationUpdatedNotificationAsync(
@@ -329,7 +331,6 @@ namespace ProjectCenter.Application.Services
                 var studentUser = await _userRepository.GetByIdAsync(studentUserId);
                 var studentFullName = $"{studentUser.Surname} {studentUser.Name} {studentUser.Patronymic}".Trim();
                 var curatorUserId = project.Teacher?.User?.Id ?? 0;
-
                 if (curatorUserId > 0)
                 {
                     await _notificationService.SendProjectDocumentationAndFileUpdatedNotificationAsync(
@@ -447,7 +448,9 @@ namespace ProjectCenter.Application.Services
             if (project == null)
                 throw new ProjectNotFoundException(projectId);
 
-    
+            var inactiveStatuses = new[] { 5, 6, 7 };
+            if (inactiveStatuses.Contains(project.StatusId))
+                throw new InvalidOperationException("Нельзя комментировать проект, который уже защищён, отклонён или архивирован.");
             if (project.TeacherId != user.Teacher.Id)
                 throw new AccessDeniedException("Вы можете комментировать только проекты своих студентов.");
 

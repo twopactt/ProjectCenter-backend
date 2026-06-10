@@ -92,6 +92,11 @@ namespace ProjectCenter.API.Extensions
 
             return services;
         }
+        public static IServiceCollection AddBackgroundServices(this IServiceCollection services)
+        {
+            services.AddHostedService<ProjectStatusBackgroundService>();
+            return services;
+        }
 
         public static IServiceCollection AddCustomAutoMapper(this IServiceCollection services)
         {

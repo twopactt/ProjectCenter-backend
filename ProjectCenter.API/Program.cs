@@ -8,7 +8,7 @@ builder.Services.AddAllServices(builder.Configuration);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerWithBearer();
-
+builder.Services.AddBackgroundServices();
 var app = builder.Build();
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();

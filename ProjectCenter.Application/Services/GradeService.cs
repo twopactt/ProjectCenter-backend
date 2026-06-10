@@ -46,11 +46,14 @@ namespace ProjectCenter.Application.Services
             if (project.TeacherId != teacher.Teacher.Id)
                 throw new ProjectAccessDeniedException();
 
-      
+            if (project.StatusId != 1 && project.StatusId != 2)
+                throw new InvalidOperationException($"Нельзя выставить оценку проекту со статусом \"{project.Status.Name}\". Оценка выставляется только проектам в статусе 'В разработке' или 'На проверке у преподавателя'.");
             if (dto.Value < 1 || dto.Value > 5)
                 throw new ArgumentException("Оценка должна быть от 1 до 5");
+            var inactiveStatuses = new[] { 5, 6, 7 };
+            if (inactiveStatuses.Contains(project.StatusId))
+                throw new InvalidOperationException("Нельзя выставить оценку на завершённый проект.");
 
-          
             var existingGrade = await _gradeRepository.GetByProjectIdAsync(dto.ProjectId);
 
             if (existingGrade != null)
@@ -80,6 +83,11 @@ namespace ProjectCenter.Application.Services
             };
 
             await _gradeRepository.AddAsync(grade);
+            if (project.StatusId == 1 || project.StatusId == 2)
+            {
+                project.StatusId = 3;
+                await _projectRepository.UpdateProjectAsync(project);
+            }
             var teacherFullName = $"{teacher.Surname} {teacher.Name} {teacher.Patronymic}".Trim();
             var student = await _userRepository.GetByIdAsync(project.Student.UserId);
             if (student != null)
@@ -112,7 +120,9 @@ namespace ProjectCenter.Application.Services
             var project = await _projectRepository.GetProjectByIdAsync(projectId);
             if (project == null)
                 throw new ProjectNotFoundException(projectId);
-
+            var inactiveStatuses = new[] { 5, 6, 7 };
+            if (inactiveStatuses.Contains(project.StatusId))
+                throw new InvalidOperationException("Нельзя обновить оценку у завершённого проекта.");
             var student = await _userRepository.GetStudentByUserIdAsync(project.Student.UserId);
             if (student == null)
                 throw new StudentNotFoundException(project.Student.UserId);

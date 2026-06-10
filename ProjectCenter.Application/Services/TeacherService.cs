@@ -40,16 +40,19 @@ namespace ProjectCenter.Application.Services
             if (user.Teacher == null)
                 throw new AccessDeniedException("Только преподаватель может просматривать студентов.");
 
-    
             var students = await _repo.GetStudentsByTeacherIdAsync(user.Teacher.Id);
 
-         
+            var inactiveStatuses = new[] { 5, 6, 7 }; 
+
             var result = students
                 .Where(s => s.Projects != null && s.Projects.Any())
                 .Select(s =>
                 {
-                    var project = s.Projects.First();
+                    var project = s.Projects.FirstOrDefault(p => !inactiveStatuses.Contains(p.StatusId))
+                                  ?? s.Projects.First();
+
                     var course = StudentCourseCalculator.GetCurrentCourse(s, DateTime.Now);
+
                     return new StudentShortDto
                     {
                         Id = s.Id,
@@ -59,13 +62,11 @@ namespace ProjectCenter.Application.Services
                         ProjectId = project.Id,
                         ProjectTitle = project.Title,
                         ProjectStatus = project.Status.Name,
-
                         Grade = project.Grade?.Value,
                         GradeComment = project.Grade?.Comment
                     };
                 })
                 .ToList();
-
 
             if (!result.Any())
                 throw new ArgumentException("У ваших студентов пока нет проектов.");

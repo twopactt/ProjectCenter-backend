@@ -104,7 +104,7 @@ namespace ProjectCenter.Infrastructure.Persistence.Repositories
         public async Task<Project?> GetActiveProjectByStudentIdAsync(int studentId)
         {
             
-            var inactiveStatuses = new[] {9, 10, 11};
+            var inactiveStatuses = new[] {5,6, 7};
 
             return await _context.Projects
                 .Where(p => p.StudentId == studentId && !inactiveStatuses.Contains(p.StatusId))

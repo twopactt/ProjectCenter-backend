@@ -91,8 +91,7 @@ namespace ProjectCenter.Application.Services
             var activeProject = await _projectRepository.GetActiveProjectByStudentIdAsync(student.Id);
             if (activeProject != null)
                 throw new ActiveProjectExistsException(activeProject.Title);
-            if (dto.Year < 2020 || dto.Year > DateTime.Now.Year + 5)
-                throw new ArgumentException("Некорректный год проекта");
+            var deadline = CalculateDeadline();
 
             var project = new Project
             {
@@ -105,9 +104,9 @@ namespace ProjectCenter.Application.Services
                 IsPublic = dto.IsPublic,
                 FileProject = null,
                 FileDocumentation = null,
-                DateDeadline = new DateTime(DateTime.Now.Year + 1, 6, 30),
+                DateDeadline = deadline,
                 CreatedDate = DateTime.Now,
-                Year = dto.Year
+                Year = deadline.Year
             };
 
             await _projectRepository.AddProjectAsync(project);
@@ -128,6 +127,25 @@ namespace ProjectCenter.Application.Services
                 );
             var createdProject = await _projectRepository.GetProjectByIdAsync(project.Id);
             return _mapper.Map<ProjectDto>(createdProject);
+        }
+        private DateTime CalculateDeadline()
+        {
+            var now = DateTime.Now;
+            var currentYear = now.Year;
+            var currentMonth = now.Month;
+
+            if (currentMonth >= 9)
+            {
+                return new DateTime(currentYear + 1, 6, 25);
+            }
+            else if (currentMonth >= 1 && currentMonth <= 6)
+            {
+                return new DateTime(currentYear, 6, 25);
+            }
+            else
+            {
+                return new DateTime(currentYear + 1, 6, 25);
+            }
         }
         public async Task<ProjectDto> UpdateProjectAsync(int projectId, UpdateProjectRequestDto dto)
         {
@@ -482,10 +500,7 @@ namespace ProjectCenter.Application.Services
                     newTypeName = newType?.Name ?? "неизвестный тип";
                 }
             }
-            if (dto.Year.HasValue)
-            {
-                project.Year = dto.Year.Value;
-            }
+            
             if (dto.SubjectId.HasValue)
             {
                 var oldSubjectId = project.SubjectId;
@@ -507,6 +522,7 @@ namespace ProjectCenter.Application.Services
                 if (oldDeadline.Value.Date != newDeadline.Value.Date)
                 {
                     project.DateDeadline = newDeadline.Value;
+                    project.Year = newDeadline.Value.Year;
                     deadlineChanged = true;
                 }
             }

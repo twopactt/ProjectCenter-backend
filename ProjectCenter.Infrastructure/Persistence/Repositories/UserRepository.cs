@@ -36,6 +36,13 @@ namespace ProjectCenter.Infrastructure.Persistence.Repositories
         {
             return await _context.Users.AnyAsync(u => u.Login == login);
         }
+        public async Task<User?> GetUserByEmailAsync(string email)
+        {
+            return await _context.Users
+                .Include(u => u.Teacher)
+                .Include(u => u.Student)
+                .FirstOrDefaultAsync(u => u.Email == email);
+        }
 
         public async Task<bool> EmailExistsAsync(string email)
         {
@@ -55,7 +62,11 @@ namespace ProjectCenter.Infrastructure.Persistence.Repositories
         {
             return await _context.Users
                 .Include(u => u.Student)
+                    .ThenInclude(s => s.Group)
                 .Include(u => u.Teacher)
+                .Include(u => u.Student)
+                    .ThenInclude(s => s.Teacher)
+                        .ThenInclude(t => t.User)
                 .FirstOrDefaultAsync(u => u.Id == id);
         }
 
@@ -108,7 +119,17 @@ namespace ProjectCenter.Infrastructure.Persistence.Repositories
                 .FirstOrDefaultAsync(t => t.Id == teacherId);
         }
 
-
+        public async Task<List<User>> GetAllStudentsAsync()
+        {
+            return await _context.Users
+                .Include(u => u.Student)
+                    .ThenInclude(s => s.Group)
+                .Include(u => u.Student)
+                    .ThenInclude(s => s.Teacher)
+                        .ThenInclude(t => t.User)
+                .Where(u => u.Student != null)
+                .ToListAsync();
+        }
 
 
     }

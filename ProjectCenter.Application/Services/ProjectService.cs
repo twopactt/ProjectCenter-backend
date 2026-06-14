@@ -195,17 +195,52 @@ namespace ProjectCenter.Application.Services
             if (project == null)
                 throw new ProjectNotFoundException(projectId);
 
-          
             if (!string.IsNullOrWhiteSpace(dto.Title))
                 project.Title = dto.Title;
 
-            if (dto.TeacherId.HasValue)
-                project.TeacherId = dto.TeacherId.Value;
+            if (dto.TeacherId.HasValue && dto.TeacherId.Value != project.TeacherId)
+            {
+                var oldTeacherId = project.TeacherId;
+                var newTeacherId = dto.TeacherId.Value;
+
+                project.TeacherId = newTeacherId;
+
+                var student = await _userRepository.GetStudentByUserIdAsync(project.Student.UserId);
+                if (student != null)
+                {
+                    var oldTeacher = await _userRepository.GetTeacherByIdAsync(oldTeacherId);
+                    var newTeacher = await _userRepository.GetTeacherByIdAsync(newTeacherId);
+
+                    student.TeacherId = newTeacherId;
+                    await _userRepository.UpdateUserAsync(student.User);
+
+                    var studentFullName = $"{student.User.Surname} {student.User.Name} {student.User.Patronymic}".Trim();
+                    var oldCuratorFullName = oldTeacher != null
+                        ? $"{oldTeacher.User.Surname} {oldTeacher.User.Name} {oldTeacher.User.Patronymic}".Trim()
+                        : "неизвестный преподаватель";
+                    var newCuratorFullName = newTeacher != null
+                        ? $"{newTeacher.User.Surname} {newTeacher.User.Name} {newTeacher.User.Patronymic}".Trim()
+                        : "неизвестный преподаватель";
+
+                    if (oldTeacher != null)
+                    {
+                        await _notificationService.SendStudentCuratorChangedForOldCuratorNotificationAsync(
+                            oldTeacher.UserId, studentFullName);
+                    }
+
+                    if (newTeacher != null)
+                    {
+                        await _notificationService.SendStudentCuratorChangedForNewCuratorNotificationAsync(
+                            newTeacher.UserId, studentFullName);
+                    }
+
+                    await _notificationService.SendStudentCuratorChangedForStudentNotificationAsync(
+                        student.UserId, oldCuratorFullName, newCuratorFullName);
+                }
+            }
 
             if (dto.StatusId.HasValue)
                 project.StatusId = dto.StatusId.Value;
-            if (dto.Year.HasValue)
-                project.Year = dto.Year.Value;
 
             if (dto.TypeId.HasValue)
                 project.TypeId = dto.TypeId.Value;
@@ -213,19 +248,14 @@ namespace ProjectCenter.Application.Services
             if (dto.SubjectId.HasValue)
                 project.SubjectId = dto.SubjectId.Value;
 
-            if (!string.IsNullOrWhiteSpace(dto.FileProject))
-                project.FileProject = dto.FileProject;
-
-            if (!string.IsNullOrWhiteSpace(dto.FileDocumentation))
-                project.FileDocumentation = dto.FileDocumentation;
-
-            if (dto.IsPublic.HasValue)
-                project.IsPublic = dto.IsPublic.Value;
             if (dto.IsPublic.HasValue)
                 project.IsPublic = dto.IsPublic.Value;
 
             if (dto.DateDeadline.HasValue)
+            {
                 project.DateDeadline = dto.DateDeadline.Value;
+                project.Year = dto.DateDeadline.Value.Year;
+            }
 
             await _projectRepository.UpdateProjectAsync(project);
 

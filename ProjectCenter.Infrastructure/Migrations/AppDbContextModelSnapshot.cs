@@ -22,42 +22,6 @@ namespace ProjectCenter.Infrastructure.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("ProjectCenter.Core.Entities.Cabinet", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Cabinet", (string)null);
-                });
-
-            modelBuilder.Entity("ProjectCenter.Core.Entities.CollegeBuilding", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("CollegeBuilding", (string)null);
-                });
-
             modelBuilder.Entity("ProjectCenter.Core.Entities.Comment", b =>
                 {
                     b.Property<int>("Id")
@@ -89,45 +53,6 @@ namespace ProjectCenter.Infrastructure.Migrations
                     b.ToTable("Comment", (string)null);
                 });
 
-            modelBuilder.Entity("ProjectCenter.Core.Entities.ConsultationSchedule", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("BuildingId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("CabinetId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("DayOfWeek")
-                        .HasColumnType("int");
-
-                    b.Property<TimeSpan>("EndTime")
-                        .HasColumnType("time");
-
-                    b.Property<TimeSpan>("StartTime")
-                        .HasColumnType("time");
-
-                    b.Property<int>("TeacherId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("BuildingId");
-
-                    b.HasIndex("CabinetId");
-
-                    b.HasIndex("DayOfWeek");
-
-                    b.HasIndex("TeacherId");
-
-                    b.ToTable("ConsultationSchedule", (string)null);
-                });
-
             modelBuilder.Entity("ProjectCenter.Core.Entities.DataStorageCategory", b =>
                 {
                     b.Property<int>("Id")
@@ -152,24 +77,6 @@ namespace ProjectCenter.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("DataStorageCategory", (string)null);
-                });
-
-            modelBuilder.Entity("ProjectCenter.Core.Entities.DayOfWeekForConsultation", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("DayOfWeekForConsultation", (string)null);
                 });
 
             modelBuilder.Entity("ProjectCenter.Core.Entities.Grade", b =>
@@ -579,41 +486,6 @@ namespace ProjectCenter.Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("ProjectCenter.Core.Entities.ConsultationSchedule", b =>
-                {
-                    b.HasOne("ProjectCenter.Core.Entities.CollegeBuilding", "Building")
-                        .WithMany("ConsultationSchedules")
-                        .HasForeignKey("BuildingId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("ProjectCenter.Core.Entities.Cabinet", "Cabinet")
-                        .WithMany("ConsultationSchedules")
-                        .HasForeignKey("CabinetId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("ProjectCenter.Core.Entities.DayOfWeekForConsultation", "DayOfWeekForConsultation")
-                        .WithMany("ConsultationSchedules")
-                        .HasForeignKey("DayOfWeek")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("ProjectCenter.Core.Entities.Teacher", "Teacher")
-                        .WithMany("ConsultationSchedules")
-                        .HasForeignKey("TeacherId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Building");
-
-                    b.Navigation("Cabinet");
-
-                    b.Navigation("DayOfWeekForConsultation");
-
-                    b.Navigation("Teacher");
-                });
-
             modelBuilder.Entity("ProjectCenter.Core.Entities.Grade", b =>
                 {
                     b.HasOne("ProjectCenter.Core.Entities.Project", "Project")
@@ -733,21 +605,6 @@ namespace ProjectCenter.Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("ProjectCenter.Core.Entities.Cabinet", b =>
-                {
-                    b.Navigation("ConsultationSchedules");
-                });
-
-            modelBuilder.Entity("ProjectCenter.Core.Entities.CollegeBuilding", b =>
-                {
-                    b.Navigation("ConsultationSchedules");
-                });
-
-            modelBuilder.Entity("ProjectCenter.Core.Entities.DayOfWeekForConsultation", b =>
-                {
-                    b.Navigation("ConsultationSchedules");
-                });
-
             modelBuilder.Entity("ProjectCenter.Core.Entities.Group", b =>
                 {
                     b.Navigation("Students");
@@ -778,8 +635,6 @@ namespace ProjectCenter.Infrastructure.Migrations
 
             modelBuilder.Entity("ProjectCenter.Core.Entities.Teacher", b =>
                 {
-                    b.Navigation("ConsultationSchedules");
-
                     b.Navigation("Grade");
 
                     b.Navigation("Projects");

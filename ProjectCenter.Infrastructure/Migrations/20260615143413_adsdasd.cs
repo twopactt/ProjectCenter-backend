@@ -6,37 +6,11 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace ProjectCenter.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class Update : Migration
+    public partial class adsdasd : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.CreateTable(
-                name: "Cabinet",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Cabinet", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "CollegeBuilding",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_CollegeBuilding", x => x.Id);
-                });
-
             migrationBuilder.CreateTable(
                 name: "DataStorageCategory",
                 columns: table => new
@@ -50,19 +24,6 @@ namespace ProjectCenter.Infrastructure.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_DataStorageCategory", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "DayOfWeekForConsultation",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_DayOfWeekForConsultation", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -213,48 +174,6 @@ namespace ProjectCenter.Infrastructure.Migrations
                         name: "FK_Teacher_User_UserId",
                         column: x => x.UserId,
                         principalTable: "User",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "ConsultationSchedule",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    TeacherId = table.Column<int>(type: "int", nullable: false),
-                    DayOfWeek = table.Column<int>(type: "int", nullable: false),
-                    StartTime = table.Column<TimeSpan>(type: "time", nullable: false),
-                    EndTime = table.Column<TimeSpan>(type: "time", nullable: false),
-                    CabinetId = table.Column<int>(type: "int", nullable: false),
-                    BuildingId = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ConsultationSchedule", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_ConsultationSchedule_Cabinet_CabinetId",
-                        column: x => x.CabinetId,
-                        principalTable: "Cabinet",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_ConsultationSchedule_CollegeBuilding_BuildingId",
-                        column: x => x.BuildingId,
-                        principalTable: "CollegeBuilding",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_ConsultationSchedule_DayOfWeekForConsultation_DayOfWeek",
-                        column: x => x.DayOfWeek,
-                        principalTable: "DayOfWeekForConsultation",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_ConsultationSchedule_Teacher_TeacherId",
-                        column: x => x.TeacherId,
-                        principalTable: "Teacher",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -416,26 +335,6 @@ namespace ProjectCenter.Infrastructure.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ConsultationSchedule_BuildingId",
-                table: "ConsultationSchedule",
-                column: "BuildingId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ConsultationSchedule_CabinetId",
-                table: "ConsultationSchedule",
-                column: "CabinetId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ConsultationSchedule_DayOfWeek",
-                table: "ConsultationSchedule",
-                column: "DayOfWeek");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ConsultationSchedule_TeacherId",
-                table: "ConsultationSchedule",
-                column: "TeacherId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Grade_ProjectId",
                 table: "Grade",
                 column: "ProjectId",
@@ -537,9 +436,6 @@ namespace ProjectCenter.Infrastructure.Migrations
                 name: "Comment");
 
             migrationBuilder.DropTable(
-                name: "ConsultationSchedule");
-
-            migrationBuilder.DropTable(
                 name: "DataStorageCategory");
 
             migrationBuilder.DropTable(
@@ -550,15 +446,6 @@ namespace ProjectCenter.Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "PasswordResetCodes");
-
-            migrationBuilder.DropTable(
-                name: "Cabinet");
-
-            migrationBuilder.DropTable(
-                name: "CollegeBuilding");
-
-            migrationBuilder.DropTable(
-                name: "DayOfWeekForConsultation");
 
             migrationBuilder.DropTable(
                 name: "Project");

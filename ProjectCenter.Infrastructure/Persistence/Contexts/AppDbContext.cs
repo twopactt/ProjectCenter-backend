@@ -16,10 +16,7 @@ namespace ProjectCenter.Infrastructure.Persistence.Contexts
         public DbSet<Student> Students { get; set; }
         public DbSet<Teacher> Teachers { get; set; }
         public DbSet<Group> Groups { get; set; }
-        public DbSet<Cabinet> Cabinets { get; set; }
-        public DbSet<CollegeBuilding> CollegeBuildings { get; set; }
-        public DbSet<DayOfWeekForConsultation> DayOfWeekForConsultations { get; set; }
-        public DbSet<ConsultationSchedule> ConsultationSchedules { get; set; }
+      
         public DbSet<Comment> Comments { get; set; }
         public DbSet<Notification> Notifications { get; set; }         
         public DbSet<TypeNotification> TypeNotifications { get; set; }
